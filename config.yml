@@ -13,8 +13,8 @@ jobs:
           command: |
             echo $docker_password | docker login -u $DOCKERHUB_USERNAME --password-stdin
             GIT_COMMIT=$(git rev-parse --short HEAD)
-            docker build -t dockerhub_username/image_name:$GIT_COMMIT .
-            docker push dockerhub_username/image_name:$GIT_COMMIT
+            docker build -t <dockerhub_username>/<image_name>:$GIT_COMMIT .
+            docker push <dockerhub_username>/<image_name>:$GIT_COMMIT
   deployment:
     docker:
       - image: <docker_image>
@@ -29,7 +29,7 @@ jobs:
             az aks get-credentials --resource-group <rg_name> --name <AKS_Name>
             kubectl apply -f <your_deployment.yml>
             kubectl apply -f <your_service.yml>
-            kubectl set image deployment/<deployment_name> <container_name>=dockerhub_username/image_name:$GIT_COMMIT
+            kubectl set image deployment/<deployment_name> <container_name>=<dockerhub_username>/<image_name>:$GIT_COMMIT
 
 
 workflows:
