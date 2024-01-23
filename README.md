@@ -22,7 +22,7 @@ Make sure to set the following environment variables in your CircleCI project se
 **`.circleci/config.yml`**<br>
 Use config.yml file from this repository and commit it to your github project.
 
-**Note** - Use Image 
+**Note** - Use Image in place of <docker_image> which have all the configuration installed (eg. Azure CLI)
 
 ## Workflow
 - The **buildAndPush** job is triggered on each push to the repository. It builds the Docker image, pushes it to Docker Hub, and caches the Docker layers for future builds.
