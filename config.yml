@@ -1,1 +1,41 @@
-# CircleCI pipeline to deploy your application on AKS
+version: 2.1
+
+jobs:
+  buildAndPush:
+    docker:
+      - image: cimg/base:2021.04
+    steps:   
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - run:
+          name: Building docker image
+          command: |
+            echo $docker_password | docker login -u $DOCKERHUB_USERNAME --password-stdin
+            GIT_COMMIT=$(git rev-parse --short HEAD)
+            docker build -t dockerhub_username/image_name:$GIT_COMMIT .
+            docker push dockerhub_username/image_name:$GIT_COMMIT
+  deployment:
+    docker:
+      - image: <docker_image>
+    steps:
+      - checkout
+      - run:
+          name: deploy-to-AKS
+          command: |   
+            GIT_COMMIT=$(git rev-parse --short HEAD)
+            az login --service-principal -u $client_id -p $client_secret --tenant $tenant_id
+            az account set --subscription $subscription
+            az aks get-credentials --resource-group <rg_name> --name <AKS_Name>
+            kubectl apply -f <your_deployment.yml>
+            kubectl apply -f <your_service.yml>
+            kubectl set image deployment/<deployment_name> <container_name>=dockerhub_username/image_name:$GIT_COMMIT
+
+
+workflows:
+  testing:
+    jobs:
+      - buildAndPush
+      - deployment:
+          requires:
+            - buildAndPush
